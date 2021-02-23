@@ -22,8 +22,7 @@ def read_data(message_file, categories_file):
         - categories.csv
 
     :return:
-        messages: (pandas DataFrame)
-        categories: (pandas DataFrame)
+        df: (pandas DataFrame) Merged table.
     """
 
     if not os.path.exists(message_file):
@@ -36,7 +35,35 @@ def read_data(message_file, categories_file):
 
     messages = pd.read_csv(message_file)
     categories = pd.read_csv(categories_file)
-    return messages, categories
+
+    # Merge datasets.
+    df = pd.merge(messages, categories, on='id', how='left')
+
+    return df
+
+
+def clean_data(df):
+    """Returns dataFrame with cleaned data.
+
+    :param df: (pandas DataFrame)
+    :return:
+        df: (pandas DataFrame) Cleaned data.
+    """
+
+    # Split categories into separate category columns
+    categories = split_categories(df)
+
+    # Convert category values to just numbers 0 or 1.
+    print('Cleaning data...')
+    categories = convert_to_binary(categories)
+
+    # Replace categories column in df with new category columns.
+    df = update_category_values(df, categories)
+
+    # Remove duplicates.
+    df = remove_duplicates(df)
+
+    return df
 
 
 def split_categories(df):
@@ -115,7 +142,10 @@ def remove_duplicates(df):
         print('\tThere are duplicated values.')
 
     # drop duplicates
-    df = df.drop_duplicates()
+    df = df.copy().drop_duplicates()
+
+    # related column has values 0, 1 or 2, replace 2 -> 1
+    df['related'].replace(2, 1, inplace=True)
 
     # check number of duplicates
     isAnyElementTrue = df.duplicated().any()
@@ -127,13 +157,14 @@ def remove_duplicates(df):
     return df
 
 
-def save_dataframe_to_sql_db(df):
+def save_dataframe_to_sql_db(df, database_filepath):
     """Save the clean dataset into an sqlite database.
 
     :param df: (pandas DataFrame) Table with messages and categories.
+    :param database_filepath: (str) Path where database will be saved.
     """
 
-    engine = create_engine('sqlite:///data/disaster_response.db')
+    engine = create_engine('sqlite:///{}'.format(database_filepath))
     df.to_sql('messages', engine, index=False, if_exists='replace')
 
 
@@ -145,29 +176,14 @@ def main():
               .format(messages_filepath, categories_filepath))
 
         # Load datasets.
-        message_file = 'data/messages.csv'
-        categories_file = 'data/categories.csv'
-        messages, categories = read_data(message_file, categories_file)
+        df = read_data(messages_filepath, categories_filepath)
 
-        # Merge datasets.
-        df = pd.merge(messages, categories, on='id', how='left')
-
-        # Split categories into separate category columns
-        categories = split_categories(df)
-
-        # Convert category values to just numbers 0 or 1.
-        print('Cleaning data...')
-        convert_to_binary(categories)
-
-        # Replace categories column in df with new category columns.
-        update_category_values(df, categories)
-
-        # Remove duplicates.
-        df = remove_duplicates(df)
+        print("Cleaning data...")
+        df = clean_data(df)
 
         # Save the clean dataset into an sqlite database.
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
-        save_dataframe_to_sql_db(df)
+        save_dataframe_to_sql_db(df, database_filepath)
 
         print('Cleaned data saved to database!')
 
