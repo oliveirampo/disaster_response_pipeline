@@ -57,6 +57,12 @@ def clean_data(df):
     print('Cleaning data...')
     categories = convert_to_binary(categories)
 
+    # remove columns with only one value
+    one_value_columns = [
+        column for column in categories.columns if len(categories[column].unique()) == 1
+    ]
+    categories = categories.drop(one_value_columns, axis=1)
+
     # Replace categories column in df with new category columns.
     df = update_category_values(df, categories)
 
@@ -76,7 +82,6 @@ def split_categories(df):
     """
 
     categories = df['categories'].str.split(';', expand=True)
-    # print(categories.head())
 
     # select the first row of the categories dataframe
     row = categories.iloc[0]
@@ -84,12 +89,10 @@ def split_categories(df):
     # use this row to extract a list of new column names for categories.
     # one way is to apply a lambda function that takes everything
     # up to the second to last character of each string with slicing
-    category_colnames = [s[:-2] for s in row.tolist()]
-    # print(len(category_colnames), category_colnames)
+    category_colnames = row.apply(lambda x: x.split("-")[0])
 
     # rename the columns of `categories`
     categories.columns = category_colnames
-    # print(categories.head(2))
 
     return categories
 
@@ -184,6 +187,7 @@ def main():
         # Save the clean dataset into an sqlite database.
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_dataframe_to_sql_db(df, database_filepath)
+        print(df.head(5))
 
         print('Cleaned data saved to database!')
 
