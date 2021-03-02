@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Disaster Response API</title>
+    <title>Disaster Response Web App</title>
 
     <!-- css stylesheet -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/reset.css') }}" />
@@ -45,22 +45,22 @@
             </span>
         </a>
         <a href="https://appen.com/datasets/combined-disaster-response-data/" target=”_blank”>Data</a>
+        <a href="TODO" target=”_blank”>Model</a>
     </div>
 
     <div class="hero">
         <div class="intro">
-            <h1>Disaster Response Classification API</h1>
+            <h1>Web App for Disaster Response</h1>
             <p>
-                TODO
+                This web app uses machine learning to categorize messages that were sent during disaster events.
             </p>
             <p>
-                TODO
+                It also receives new messages and gets classification results based on 35 categories.
+                See below the list of categories.
             </p>
             <p>
-                TODO
-            </p>
-            <p>
-                TODO
+                The categorization of disaster events is useful to provide
+                concise and helpful information to disaster relief agencies.
             </p>
         </div>
 
@@ -73,6 +73,81 @@
             </form>
         </div>
     </div>
+
+
+
+    {% block content %}
+    <div class="overview">
+
+        <div class="samples">
+            <h3>Examples of messages</h3>
+            <p>
+                The samples below give an idea about the messages used to train the machine learning model
+                and their respective associated categories.
+                <br>Refresh the page to load up new messages.
+            </p>
+                Note that, not all messages are relevant to describe a disaster event.
+                <br>In fact, 24 % of the messages in the training dataset were not related at all to a disaster.
+            <p>
+
+            </p>
+
+            <div class="sample-slots">
+                {% for sample in sample_messages %}
+                <form action="/go#results" method="get">
+                    <input type="text" name="query" value="{{sample[0]}}">
+                    <p><i>"{{sample[2]}}"</i> (source: {{sample[1]}})</p>
+                    <div>
+                        <button type="submit">Classify Message</button>
+                    </div>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <div class="plot-section">
+            <div class="plotly-plots">
+                <h3>Summary of data</h3>
+                <p>General information about the training data and their labels.</p>
+                <div class="plots">
+                    {% for id in ids %}
+                    <div id="{{id}}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    // Look at device type before defining the config
+    function setPlotlyConfig(x) {
+        if (x.matches) { // If media query matches
+            config = {responsive: true, displayModeBar: false};
+        } else {
+            config = {responsive: true};
+        }
+        return config;
+    }
+
+    var lessThan700 = window.matchMedia("(max-width: 700px)")
+    plotly_config = setPlotlyConfig(lessThan700)
+
+    const graphs = {{graphJSON | safe}};
+    const ids = {{ids | safe}};
+    for(let i in graphs) {
+        Plotly.plot(
+            ids[i],
+            graphs[i].data,
+            graphs[i].layout,
+            config = plotly_config || {}
+        );
+    }
+    </script>
+
+
+
+    {% endblock %}
 
 </body>
 
