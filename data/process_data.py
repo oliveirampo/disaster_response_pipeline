@@ -187,7 +187,6 @@ def main():
         # Save the clean dataset into an sqlite database.
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_dataframe_to_sql_db(df, database_filepath)
-        print(df.head(5))
 
         print('Cleaned data saved to database!')
 

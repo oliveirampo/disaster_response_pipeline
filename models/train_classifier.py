@@ -48,7 +48,7 @@ def load_data(database_filepath):
 def tokenize(text):
     """Extracts features from text.
 
-    :param text: (str) Text to have heatures extracted.
+    :param text: (str) Text to have features extracted.
     :return:
         clean_tokens: (list) Cleaned tokens.
     """
@@ -95,10 +95,10 @@ def build_model():
         ]
     )
 
-    # parameters_grid = {'classifier__estimator__learning_rate': [0.01, 0.02, 0.05],
-    #                    'classifier__estimator__n_estimators': [10, 20, 40]}
-    parameters_grid = {'classifier__estimator__learning_rate': [0.01, 0.05],
-                       'classifier__estimator__n_estimators': [10, 20]}
+    parameters_grid = {'classifier__estimator__learning_rate': [0.01, 0.02, 0.05],
+                       'classifier__estimator__n_estimators': [10, 20, 40]}
+    # parameters_grid = {'classifier__estimator__learning_rate': [0.01, 0.05],
+    #                    'classifier__estimator__n_estimators': [10, 20]}
 
     cv = GridSearchCV(pipeline, cv=5, param_grid=parameters_grid, scoring='f1_micro', n_jobs=-1)
 
@@ -131,7 +131,7 @@ def build_simple_model():
                         loss="hinge",
                         alpha=0.00005,
                         tol=0.01,
-                        n_iter_no_change=5,
+                        # n_iter_no_change=5,
                         penalty="l2",
                     )
                 ),
@@ -210,7 +210,8 @@ def main():
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
         print('Building model...')
-        model = build_simple_model()
+        model = build_model()
+        # model = build_simple_model()
 
         print('Training model...')
         model.fit(X_train, Y_train)

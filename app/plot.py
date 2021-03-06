@@ -17,7 +17,7 @@ def get_graphs(df):
     genres_plot = [Bar(
         x=genre_names,
         y=genre_counts,
-        marker_color="dimgrey",
+        # marker_color="dimgrey",
     )]
 
     genres_layout = dict(
@@ -34,7 +34,7 @@ def get_graphs(df):
         x=categories.values.tolist(),
         y=categories.index.tolist(),
         orientation="h",
-        marker_color="dimgrey",
+        # marker_color="dimgrey",
     )]
 
     label_layout = dict(

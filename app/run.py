@@ -1,3 +1,4 @@
+import sys
 import json
 import plotly
 import pandas as pd
@@ -7,24 +8,29 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request
-from sklearn.externals import joblib
+import joblib
 from sqlalchemy import create_engine
 
+sys.path.append("../models")
+
 import plot
+import train_classifier
 
 
 app = Flask(__name__)
 
+
 def tokenize(text):
-    tokens = word_tokenize(text)
-    lemmatizer = WordNetLemmatizer()
+    """Extracts features from text.
 
-    clean_tokens = []
-    for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
+    :param text: (str) Text to have features extracted.
+    :return:
+        clean_tokens: (list) Cleaned tokens.
+    """
 
+    clean_tokens = train_classifier.tokenize(text)
     return clean_tokens
+
 
 # load data
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
