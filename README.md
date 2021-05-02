@@ -15,7 +15,7 @@ messages and have them classified.
 
 ### Prerequisites
 
-Python 3.6 or later.
+Python 3.6.13
 
 The list of packages
 and recommended versions are listed in file app/requirements.txt
